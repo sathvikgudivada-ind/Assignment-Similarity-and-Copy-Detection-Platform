@@ -1,32 +1,84 @@
-# Assignment Similarity and Copy Detection Platform
+# 📚 Assignment Similarity and Copy Detection Platform
 
-Assignment Similarity and Copy Detection System is a Java application that serves the purpose of comparing two assignment text files and finding similarities in those files.
+## 1. 📌 Project Overview
 
-The system employs text processing algorithms to calculate the similarity percentage between two assignments. It can be used for detecting copied content from one assignment to another.
+The **Assignment Similarity and Copy Detection Platform** is a Java-based application designed to compare two student assignment text files and identify similarities between them.
 
-This comparison will be done by employing two different algorithms Jaccard Similarity and Cosine Similarity.
+The system uses text-processing techniques and similarity algorithms to calculate how closely two assignments match. It helps identify potentially copied content and supports academic integrity.
 
-## Characteristics
-Comparison of Two Assignment Text Files: Compare two text files of assignments.
+The application compares assignment files using **Jaccard Similarity** and **Cosine Similarity** algorithms.
 
-Jaccard Similarity: Determine similarities among unique words in assignments.
+## 2. ✨ Features
 
-Cosine Similarity: Compare word-frequency vectors for similarity.
+- **Assignment File Comparison:** Compare two student assignment text files.
+- **Jaccard Similarity:** Identify similarities between unique words in assignments.
+- **Cosine Similarity:** Compare word-frequency vectors to measure textual similarity.
+- **Text Preprocessing:** Process and prepare assignment text before comparison.
+- **File Reading:** Read assignment content from UTF-8 text files.
+- **Similarity Score:** Calculate similarity scores to evaluate matching content.
+- **Console-Based Execution:** Run the application through a terminal or command prompt.
 
-Text Preprocessing: Process the assignment texts before comparing.
+## 3. 🛠️ Technologies Used
 
-Reading of Files: Read assignment texts from UTF-8 text files.
+- **PROGRAMMING LANGUAGE:** Java
+- **IDE:** Visual Studio Code (VS Code)
+- **JDK VERSION:** JDK 11 or Later
+- **DATA STORAGE:** Local File System (TXT Files)
+- **VERSION CONTROL:** Git
+- **REPOSITORY HOSTING:** GitHub
+- **OPERATING SYSTEM:** Windows / Linux / macOS
 
-Similarity Score Calculation: Compute similarity score to help identify matching content.
+## 4. 📂 Project Structure
 
-Execution via Terminal: Execute the application using terminal.
+```text
+Assignment-Similarity-and-Copy-Detection-Platform/
+│
+├── src/
+│   ├── Main.java
+│   ├── FileReaderService.java
+│   ├── TextPreprocessor.java
+│   ├── JaccardSimilarity.java
+│   ├── CosineSimilarity.java
+│   └── SimilarityService.java
+│
+├── samples/
+│   ├── assignment1.txt
+│   └── assignment2.txt
+│
+├── .gitignore
+├── LICENSE
+└── README.md
+```
 
-## Technologies Used
-Programming Language: Java
+## 5. ⚙️ Working Methodology
 
-Development Environment: Visual Studio Code (VS Code)
+1. **Input:** The user provides two assignment text-file paths.
+2. **File Reading:** The system reads both assignment files.
+3. **Text Preprocessing:** The content is processed and prepared for comparison.
+4. **Jaccard Comparison:** The algorithm calculates similarity based on unique words.
+5. **Cosine Comparison:** The algorithm calculates similarity based on word frequencies.
+6. **Result Generation:** The system calculates and displays similarity results.
 
-Java Development Kit: JDK 11+
+## 6. 🧮 Algorithms Used
+
+### A. Jaccard Similarity
+
+**Jaccard Similarity** compares two sets of unique words to determine how much content they have in common.
+
+**Formula:**
+
+`J(A,B) = |A ∩ B| / |A ∪ B|`
+
+**Where:**
+
+- **A:** Unique words in Assignment 1.
+- **B:** Unique words in Assignment 2.
+- **Intersection:** Common unique words in both assignments.
+- **Union:** All unique words present in both assignments.
+
+### B. Cosine Similarity
+
+**Cosine Similarity** compares two word
 
 Data Storage: File System (TXT Files)
 
