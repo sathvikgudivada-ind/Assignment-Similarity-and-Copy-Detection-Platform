@@ -174,9 +174,7 @@ The project follows a modular Java class structure.
 - **Database Integration:** Integrate MySQL using JDBC.
 - **Report Generation:** Generate downloadable similarity reports.
 
-## 13. 👥 Project Team
 
-**PROJECT NAME:** Assignment Similarity and Copy Detection Platform
 
 ## 13. 👥 Project Team
 
