@@ -5,11 +5,23 @@ Assignment Similarity and Copy Detection System is a Java application that serve
 The system employs text processing algorithms to calculate the similarity percentage between two assignments. It can be used for detecting copied content from one assignment to another.
 
 This comparison will be done by employing two different algorithms Jaccard Similarity and Cosine Similarity.
-## Requirements
-- JDK 11 or later
-- Terminal or an IDE such as IntelliJ IDEA, Eclipse, or VS Code with Java support
 
-## Project structure
+## Characteristics
+Comparison of Two Assignment Text Files: Compare two text files of assignments.
+
+Jaccard Similarity: Determine similarities among unique words in assignments.
+
+Cosine Similarity: Compare word-frequency vectors for similarity.
+
+Text Preprocessing: Process the assignment texts before comparing.
+
+Reading of Files: Read assignment texts from UTF-8 text files.
+
+Similarity Score Calculation: Compute similarity score to help identify matching content.
+
+Execution via Terminal: Execute the application using terminal.
+
+## Technologies Used
 ```text
 src/
   Main.java
