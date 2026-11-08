@@ -178,11 +178,16 @@ The project follows a modular Java class structure.
 
 **PROJECT NAME:** Assignment Similarity and Copy Detection Platform
 
-**TEAM MEMBERS:**
+## 13. 👥 Project Team
 
-- **Member 1:** [Name] – [Roll Number]
-- **Member 2:** [Name] – [Roll Number]
-- **Member 3:** [Name] – [Roll Number]
+| **S.No.** | **Team Member Name** | **Registration Number** |
+|:---:|:---|:---:|
+| 1 | Shaik Nadeem | AP25110010598 |
+| 2 | Pavan Santhosh | AP25110011006 |
+| 3 | T. Prasad | AP25110010960 |
+| 4 | G. Sathvik | AP25110010728 |
+| 5 | B. Vamsidar Reddy | AP25110011024 |
+| 6 | K. Joshan Kumar | AP25110011077 |
 
 **DEPARTMENT:** [Department Name]
 
