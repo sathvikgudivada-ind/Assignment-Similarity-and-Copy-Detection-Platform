@@ -1,7 +1,10 @@
 # Assignment Similarity and Copy Detection Platform
 
-A Java-based starter project that compares two plain-text assignment files using Jaccard similarity and Cosine similarity.
+Assignment Similarity and Copy Detection System is a Java application that serves the purpose of comparing two assignment text files and finding similarities in those files.
 
+The system employs text processing algorithms to calculate the similarity percentage between two assignments. It can be used for detecting copied content from one assignment to another.
+
+This comparison will be done by employing two different algorithms Jaccard Similarity and Cosine Similarity.
 ## Requirements
 - JDK 11 or later
 - Terminal or an IDE such as IntelliJ IDEA, Eclipse, or VS Code with Java support
