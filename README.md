@@ -189,9 +189,9 @@ The project follows a modular Java class structure.
 | 5 | B. Vamsidar Reddy | AP25110011024 |
 | 6 | K. Joshan Kumar | AP25110011077 |
 
-**DEPARTMENT:** [Department Name]
+**DEPARTMENT:** [CSE CORE]
 
-**COLLEGE:** [College Name]
+**COLLEGE:** [SRM UNIVERSITY AP]
 
 ## 14. 🔗 GitHub Repository
 
