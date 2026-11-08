@@ -22,18 +22,19 @@ Similarity Score Calculation: Compute similarity score to help identify matching
 Execution via Terminal: Execute the application using terminal.
 
 ## Technologies Used
-```text
-src/
-  Main.java
-  FileReaderService.java
-  TextPreprocessor.java
-  JaccardSimilarity.java
-  CosineSimilarity.java
-  SimilarityService.java
-samples/
-  assignment1.txt
-  assignment2.txt
-```
+Programming Language: Java
+
+Development Environment: Visual Studio Code (VS Code)
+
+Java Development Kit: JDK 11+
+
+Data Storage: File System (TXT Files)
+
+Version Control: Git
+
+Platform: GitHub
+
+Operating System: Windows / Linux / macOS
 
 ## Compile
 Run these commands from the project root:
