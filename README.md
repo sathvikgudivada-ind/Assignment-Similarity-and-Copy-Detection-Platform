@@ -1,86 +1,220 @@
-# AI-Based Assignment Similarity and Copy Detection Platform
+<div align="center">
 
-## Project Overview
-This project is a Java-based console application that compares student assignment text files and calculates how similar they are. It uses Jaccard similarity and Cosine similarity, and can store users, assignments and results in a MySQL database using JDBC.
+# 🔍 AI-Based Assignment Similarity and Copy Detection Platform
 
-The scores show textual overlap only. They are not proof of plagiarism, and the final decision stays with the instructor.
+**Compare student assignments, measure textual overlap, and keep the final decision with the instructor.**
 
-Developed at SRM University-AP, Department of CSE (CSE-E), under the guidance of Dr. Tirthankar Sengupta.
+![Java](https://img.shields.io/badge/Java-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
+![JDBC](https://img.shields.io/badge/JDBC-Connected-blue?style=for-the-badge)
+![Status](https://img.shields.io/badge/Status-Academic%20Project-success?style=for-the-badge)
 
-## Features
-- Compares two assignment text files
-- Text preprocessing: lowercase conversion, symbol removal, tokenization
-- Jaccard similarity on sets of unique words
-- Cosine similarity on word-frequency vectors
-- Similarity scores shown as percentages
-- Stores users, assignments and similarity results in MySQL through JDBC
-- Menu to view stored assignments and results
-- Error handling for missing, unreadable or empty files
-- Database self-test that prints PASS or FAIL
+*SRM University-AP · Department of Computer Science and Engineering (CSE-E)*
+*Guided by **Dr. Tirthankar Sengupta***
 
-## Technologies Used
-- Java
-- JDBC (mysql-connector-j)
-- MySQL
-- Object-Oriented Programming
-- Text preprocessing, Jaccard similarity, Cosine similarity
+</div>
 
-## Project Structure
+---
+
+## 📑 Table of Contents
+- [Project Overview](#-project-overview)
+- [Features](#-features)
+- [Technologies Used](#-technologies-used)
+- [How It Works](#-how-it-works)
+- [Project Structure](#-project-structure)
+- [Requirements](#-requirements)
+- [Installation and Execution](#-installation-and-execution)
+- [Sample Output](#-sample-output)
+- [Data Storage](#-data-storage)
+- [Object-Oriented Programming Concepts](#-object-oriented-programming-concepts)
+- [Limitations and Future Work](#-limitations-and-future-work)
+- [Project Team](#-project-team)
+- [GitHub Repository](#-github-repository)
+
+---
+
+## 📌 Project Overview
+Checking many student assignments one by one takes a lot of time. This project is a **Java console application** that reads two assignment text files, cleans the text, and calculates how similar they are using **Jaccard similarity** and **Cosine similarity**. Users, assignments and results can be stored in a **MySQL** database through **JDBC**.
+
+> ⚠️ **Note:** The scores show textual overlap only. They are decision-support information, not proof of plagiarism. The instructor makes the final decision.
+
+---
+
+## ✨ Features
+| Feature | Description |
+| --- | --- |
+| 📄 File comparison | Compares two assignment text files (UTF-8) |
+| 🧹 Text preprocessing | Lowercase conversion, symbol removal, tokenization |
+| 📊 Jaccard similarity | Measures shared unique words |
+| 📈 Cosine similarity | Compares word-frequency vectors |
+| 💾 Database storage | Saves users, assignments and results in MySQL via JDBC |
+| 🗂️ Stored records | Menu to view saved assignments and comparison results |
+| 🛡️ Error handling | Handles missing, unreadable and empty files |
+| ✅ Self-test | `DatabaseTest` checks the JDBC layer and prints PASS / FAIL |
+
+---
+
+## 🛠️ Technologies Used
+| Area | Technology |
+| --- | --- |
+| Language | Java |
+| Database | MySQL |
+| Connectivity | JDBC (mysql-connector-j) |
+| Algorithms | Jaccard similarity, Cosine similarity |
+| Concepts | OOP, text preprocessing, feature extraction |
+
+---
+
+## ⚙️ How It Works
+```mermaid
+flowchart LR
+    A[Assignment files] --> B[File Reader]
+    B --> C[Text Preprocessing]
+    C --> D[Unique word sets]
+    C --> E[Word-frequency vectors]
+    D --> F[Jaccard similarity]
+    E --> G[Cosine similarity]
+    F --> H[Similarity report]
+    G --> H
+    H --> I[(MySQL via JDBC)]
 ```
-src/
-  Main.java                 console entry point
-  FileReaderService.java    checks and reads files
-  TextPreprocessor.java     cleans text and creates tokens
-  JaccardSimilarity.java    Jaccard similarity
-  CosineSimilarity.java     Cosine similarity
-  SimilarityService.java    coordinates the comparison
-  DatabaseManager.java      JDBC connection and database operations
-  DatabaseTest.java         database self-test
-  DatabaseMenu.java         console menu for the database
-samples/                    sample assignment files
-schema.sql                  MySQL table definitions
-db.properties.example       database settings template
+
+1. The user enters the paths of two assignment files.
+2. The file is checked and read as UTF-8 text.
+3. The text is converted to lowercase, symbols are removed, and words are split into tokens.
+4. Jaccard uses the set of unique words; Cosine uses the word-frequency vector.
+5. Both percentages are displayed with a note that they are not proof of plagiarism.
+6. In database mode, users, files and results are saved through JDBC.
+
+---
+
+## 📁 Project Structure
+```
+Assignment-Similarity-and-Copy-Detection-Platform
+├── src
+│   ├── Main.java                 Console entry point
+│   ├── FileReaderService.java    Checks and reads files
+│   ├── TextPreprocessor.java     Cleans text and creates tokens
+│   ├── JaccardSimilarity.java    Jaccard similarity
+│   ├── CosineSimilarity.java     Cosine similarity
+│   ├── SimilarityService.java    Coordinates the comparison
+│   ├── DatabaseManager.java      JDBC connection and database operations
+│   ├── DatabaseTest.java         Database self-test
+│   └── DatabaseMenu.java         Console menu for the database
+├── samples                       Sample assignment files
+├── schema.sql                    MySQL table definitions
+├── db.properties.example         Database settings template
+├── LICENSE
+└── README.md
 ```
 
-## Requirements
+---
+
+## 📋 Requirements
 - Java JDK 8 or higher
-- MySQL Server (needed only for the database features)
-- MySQL Connector/J JAR file placed in a `lib` folder
+- MySQL Server (only for the database features)
+- MySQL Connector/J JAR placed in a `lib` folder
 
-## Installation and Execution
-1. Clone or download this repository.
-2. For database features, start MySQL and copy `db.properties.example` to `db.properties`, then enter your MySQL user name and password. Do not upload `db.properties` to GitHub.
-3. Put the MySQL connector JAR in a `lib` folder.
+---
 
-Compile and run (Windows):
+## 🚀 Installation and Execution
+
+**1. Get the project**
+```
+git clone https://github.com/sathvikgudivada-ind/Assignment-Similarity-and-Copy-Detection-Platform
+cd Assignment-Similarity-and-Copy-Detection-Platform
+```
+
+**2. Set up the database (optional)**
+- Start MySQL and put the connector JAR in a `lib` folder.
+- Copy `db.properties.example` to `db.properties` and enter your MySQL user name and password.
+- 🔒 Never upload `db.properties` to GitHub.
+
+**3. Compile and run (Windows)**
 ```
 javac -d out src/*.java
 java -cp "out;lib/*" Main
 java -cp "out;lib/*" DatabaseTest
 ```
-On Linux or macOS use `:` instead of `;` in the classpath.
+On Linux or macOS, use `:` instead of `;` in the classpath.
 
-Sample output:
+---
+
+## 🖥️ Sample Output
 ```
 Jaccard similarity    : 85.71%
 Cosine similarity     : 94.05%
 ```
+| Score range | Meaning |
+| --- | --- |
+| 0 – 20% | Low textual similarity |
+| 21 – 40% | Limited textual similarity |
+| 41 – 60% | Moderate textual similarity |
+| 61 – 80% | High textual similarity |
+| 81 – 100% | Very high textual similarity |
 
-## Data Storage
-The data is stored in a MySQL database named `assignment_similarity` with three tables:
-- `users` - user_id, user_name, email, created_at
-- `assignments` - assignment_id, user_id, file_name, file_content, submitted_at
-- `similarity_results` - result_id, assignment1_id, assignment2_id, algorithm, similarity_percentage, compared_at
+These ranges only explain the scores. They are not fixed rules for deciding copying.
 
-Each comparison stores two result rows, one for Jaccard and one for Cosine. All database operations use prepared statements.
+---
 
-## Object-Oriented Programming Concepts
-- **Encapsulation:** each class keeps its data and methods together (for example, DatabaseManager keeps the connection details private).
-- **Abstraction:** the user starts a comparison without needing to know how the similarity is calculated internally.
-- **Modularity:** separate classes handle file reading, preprocessing, similarity calculation and database access.
-- **Exception handling:** try-catch and try-with-resources handle file and database errors.
+## 🗄️ Data Storage
+Database name: `assignment_similarity`
 
-## Project Team
+```mermaid
+erDiagram
+    USERS ||--o{ ASSIGNMENTS : submits
+    ASSIGNMENTS ||--o{ SIMILARITY_RESULTS : compared_in
+    USERS {
+        int user_id PK
+        string user_name
+        string email
+        timestamp created_at
+    }
+    ASSIGNMENTS {
+        int assignment_id PK
+        int user_id FK
+        string file_name
+        text file_content
+        timestamp submitted_at
+    }
+    SIMILARITY_RESULTS {
+        int result_id PK
+        int assignment1_id FK
+        int assignment2_id FK
+        string algorithm
+        decimal similarity_percentage
+        timestamp compared_at
+    }
+```
+Each comparison creates two result rows: one for Jaccard and one for Cosine. All queries use prepared statements, which avoids SQL injection.
+
+---
+
+## 🧩 Object-Oriented Programming Concepts
+| Concept | Use in this project |
+| --- | --- |
+| Encapsulation | Each class keeps its data and methods together |
+| Abstraction | A comparison can be started without knowing the internal calculation |
+| Modularity | Separate classes for reading, preprocessing, similarity and database access |
+| Exception handling | try-catch and try-with-resources handle file and database errors |
+
+---
+
+## 🔭 Limitations and Future Work
+**Limitations**
+- Compares words, not meaning, so heavy paraphrasing may not be detected
+- Plain-text input and console interface only
+- English text only
+
+**Future work**
+- TF-IDF weighting and stop-word removal
+- Sentence embeddings and advanced NLP
+- PDF and Word file support
+- Web interface and highlighting of matching text
+
+---
+
+## 👥 Project Team
 | Name | Roll Number |
 | --- | --- |
 | Shaik Nadeem | AP25110010598 |
@@ -90,5 +224,13 @@ Each comparison stores two result rows, one for Jaccard and one for Cosine. All 
 | B. Vamsidar Reddy | AP25110011024 |
 | K. Joshan Kumar | AP25110011077 |
 
-## GitHub Repository
-https://github.com/sathvikgudivada-ind/Assignment-Similarity-and-Copy-Detection-Platform
+---
+
+## 🔗 GitHub Repository
+👉 https://github.com/sathvikgudivada-ind/Assignment-Similarity-and-Copy-Detection-Platform
+
+<div align="center">
+
+⭐ *If you find this project useful, please give it a star.*
+
+</div>
