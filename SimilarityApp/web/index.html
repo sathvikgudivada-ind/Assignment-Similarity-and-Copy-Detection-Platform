@@ -1,0 +1,599 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Assignment Similarity & Copy Detection</title>
+<style>
+  :root {
+    --bg: #f3f6fb; --card: #ffffff; --ink: #172033; --muted: #5f6b82; --line: #e1e7f0;
+    --brand: #2f5bea; --brand-2: #7a4dff; --brand-ink: #ffffff; --soft: #eef2ff;
+    --good: #1f9d55; --ok: #c9a200; --warn: #e67700; --bad: #d93a3a;
+    --mark: #fff3a8; --shadow: 0 1px 2px rgba(20,30,60,.06), 0 8px 24px rgba(20,30,60,.07);
+    --radius: 16px;
+  }
+  :root[data-theme="dark"] {
+    --bg: #0e1424; --card: #161e33; --ink: #e8edf8; --muted: #9aa6c0; --line: #27324d;
+    --brand: #6c8cff; --brand-2: #a280ff; --brand-ink: #0b1020; --soft: #1d2744;
+    --mark: #6b5a00; --shadow: 0 1px 2px rgba(0,0,0,.4), 0 10px 28px rgba(0,0,0,.35);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 15px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 20px; }
+
+  /* ---------- header ---------- */
+  header.hero {
+    background: linear-gradient(120deg, #1b2f6b 0%, #2f5bea 55%, #7a4dff 100%);
+    color: #fff; padding: 34px 0 78px;
+  }
+  .hero .row { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .brand { display: flex; align-items: center; gap: 14px; }
+  .logo {
+    width: 46px; height: 46px; border-radius: 13px; background: rgba(255,255,255,.18);
+    display: grid; place-items: center; backdrop-filter: blur(4px);
+  }
+  .hero h1 { margin: 0; font-size: 26px; letter-spacing: -.01em; }
+  .hero p { margin: 4px 0 0; opacity: .85; font-size: 14px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+  .chip {
+    font-size: 12px; padding: 4px 11px; border-radius: 999px;
+    background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.22);
+  }
+  .iconbtn {
+    border: 1px solid rgba(255,255,255,.35); background: rgba(255,255,255,.12); color: #fff;
+    width: 42px; height: 42px; border-radius: 12px; cursor: pointer; font-size: 18px;
+  }
+  .iconbtn:hover { background: rgba(255,255,255,.24); }
+  main { margin-top: -52px; padding-bottom: 40px; }
+
+  /* ---------- cards ---------- */
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 22px; margin-bottom: 20px;
+  }
+  .card h2 { margin: 0 0 4px; font-size: 18px; display: flex; align-items: center; gap: 10px; }
+  .step {
+    width: 26px; height: 26px; border-radius: 50%; background: var(--brand); color: var(--brand-ink);
+    font-size: 13px; display: inline-grid; place-items: center; font-weight: 700;
+  }
+  .sub { color: var(--muted); margin: 0 0 16px; font-size: 14px; }
+
+  /* ---------- tabs ---------- */
+  .tabs { display: inline-flex; background: var(--soft); border-radius: 12px; padding: 4px; margin-bottom: 14px; }
+  .tab {
+    border: 0; background: transparent; padding: 8px 16px; border-radius: 9px; cursor: pointer;
+    font: inherit; color: var(--muted); font-weight: 600;
+  }
+  .tab[aria-selected="true"] { background: var(--card); color: var(--brand); box-shadow: 0 1px 4px rgba(0,0,0,.12); }
+  .pane[hidden] { display: none; }
+
+  /* ---------- drop zone ---------- */
+  .drop {
+    border: 2px dashed var(--line); border-radius: 14px; padding: 30px 18px; text-align: center;
+    background: var(--soft); transition: .15s; cursor: pointer;
+  }
+  .drop.over { border-color: var(--brand); background: color-mix(in srgb, var(--brand) 12%, transparent); transform: scale(1.005); }
+  .drop svg { width: 38px; height: 38px; color: var(--brand); }
+  .drop strong { display: block; font-size: 16px; margin-top: 6px; }
+  .drop span { color: var(--muted); font-size: 13px; }
+  .drop .links { margin-top: 10px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+
+  /* ---------- form controls ---------- */
+  button.btn {
+    border: 0; border-radius: 11px; padding: 10px 18px; font: inherit; font-weight: 650; cursor: pointer;
+    background: var(--soft); color: var(--brand); transition: .12s;
+  }
+  button.btn:hover { filter: brightness(.96); transform: translateY(-1px); }
+  button.primary {
+    background: linear-gradient(120deg, var(--brand), var(--brand-2)); color: #fff;
+    box-shadow: 0 6px 16px rgba(47,91,234,.35); padding: 12px 26px; font-size: 16px;
+  }
+  button.ghost { background: transparent; border: 1px solid var(--line); color: var(--muted); }
+  button:disabled { opacity: .5; cursor: not-allowed; transform: none !important; }
+  input[type=text], textarea {
+    width: 100%; border: 1px solid var(--line); border-radius: 11px; padding: 10px 12px; font: inherit;
+    background: var(--card); color: var(--ink);
+  }
+  textarea { min-height: 170px; resize: vertical; font-family: ui-monospace, Consolas, monospace; font-size: 13px; }
+  input:focus, textarea:focus { outline: 2px solid color-mix(in srgb, var(--brand) 50%, transparent); border-color: var(--brand); }
+  label.check { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; color: var(--ink); }
+  label.check input { width: 18px; height: 18px; accent-color: var(--brand); }
+  .grid2 { display: grid; grid-template-columns: 1fr 220px; gap: 12px; margin-bottom: 10px; }
+
+  /* ---------- document list ---------- */
+  .doclist { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px; margin: 16px 0 0; }
+  .doc {
+    display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid var(--line);
+    border-radius: 12px; background: var(--card);
+  }
+  .doc .ico {
+    width: 38px; height: 38px; border-radius: 10px; display: grid; place-items: center; flex: none;
+    font-size: 10.5px; font-weight: 800; color: #fff; letter-spacing: .02em;
+  }
+  .doc .meta { min-width: 0; flex: 1; }
+  .doc .nm { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .doc .sz { color: var(--muted); font-size: 12px; }
+  .doc button { border: 0; background: transparent; color: var(--muted); font-size: 20px; cursor: pointer; padding: 4px 8px; border-radius: 8px; }
+  .doc button:hover { background: var(--soft); color: var(--bad); }
+  .doc.err { border-color: var(--bad); }
+  .doc .errmsg { color: var(--bad); font-size: 12px; }
+
+  .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; margin-top: 20px; }
+  .spacer { flex: 1; }
+
+  /* ---------- results ---------- */
+  .summary { display: flex; flex-wrap: wrap; gap: 10px; margin: 4px 0 18px; }
+  .stat { background: var(--soft); border-radius: 12px; padding: 10px 16px; min-width: 130px; }
+  .stat b { display: block; font-size: 22px; }
+  .stat span { color: var(--muted); font-size: 12px; }
+
+  table.rank { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .rank th { text-align: left; color: var(--muted); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+  .rank td { padding: 10px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+  .rank tr.row { cursor: pointer; }
+  .rank tr.row:hover td { background: var(--soft); }
+  .rank tr.sel td { background: color-mix(in srgb, var(--brand) 12%, transparent); }
+  .minibar { display: flex; align-items: center; gap: 8px; min-width: 110px; }
+  .minibar i { display: block; height: 8px; border-radius: 99px; background: var(--c); width: calc(var(--w) * 1%); min-width: 3px; }
+  .minibar em { font-style: normal; font-variant-numeric: tabular-nums; font-size: 13px; width: 54px; }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; color: #fff; background: var(--c); white-space: nowrap; }
+  .tablewrap { overflow-x: auto; }
+
+  .heat { border-collapse: separate; border-spacing: 3px; font-size: 12px; }
+  .heat th { font-weight: 600; color: var(--muted); max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 2px 6px; text-align: right; }
+  .heat thead th { text-align: center; max-width: 70px; }
+  .heat td { width: 54px; height: 34px; text-align: center; border-radius: 8px; font-variant-numeric: tabular-nums; font-weight: 600; cursor: pointer; }
+  .heat td.self { background: var(--soft); cursor: default; color: var(--muted); }
+
+  .detail h3 { margin: 0 0 14px; font-size: 17px; }
+  .gauges { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 16px; }
+  .gauge { border: 1px solid var(--line); border-radius: 14px; padding: 16px; text-align: center; }
+  .ring {
+    --p: 0; --c: var(--good); width: 118px; height: 118px; border-radius: 50%; margin: 0 auto 10px;
+    background: conic-gradient(var(--c) calc(var(--p) * 1%), var(--line) 0);
+    display: grid; place-items: center;
+  }
+  .ring div { width: 90px; height: 90px; border-radius: 50%; background: var(--card); display: grid; place-items: center; font-size: 22px; font-weight: 800; }
+  .gauge h4 { margin: 0; font-size: 14px; }
+  .gauge p { margin: 2px 0 0; color: var(--muted); font-size: 12px; }
+  .gauge.na { opacity: .5; }
+  .verdict { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-bottom: 16px; }
+  .verdict .stats { color: var(--muted); font-size: 13px; }
+
+  .sbs { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .sbs h4 { margin: 0 0 6px; font-size: 13px; color: var(--muted); }
+  .textbox {
+    border: 1px solid var(--line); border-radius: 12px; padding: 12px; max-height: 380px; overflow: auto;
+    white-space: pre-wrap; word-wrap: break-word; font-size: 13px; background: var(--card);
+  }
+  .textbox.code { font-family: ui-monospace, Consolas, monospace; font-size: 12.5px; }
+  mark { background: var(--mark); color: inherit; border-radius: 4px; padding: 1px 0; }
+  .legend { font-size: 12px; color: var(--muted); margin: 8px 0 14px; }
+
+  .evidence { margin: 16px 0 0; padding: 0; list-style: none; counter-reset: e; }
+  .evidence li { counter-increment: e; padding: 8px 12px 8px 40px; position: relative; border-left: 3px solid var(--warn); background: var(--soft); border-radius: 0 10px 10px 0; margin-bottom: 8px; font-size: 14px; }
+  .evidence li::before { content: counter(e); position: absolute; left: 12px; top: 8px; font-weight: 800; color: var(--warn); }
+
+  .note { border-left: 4px solid var(--brand); background: var(--soft); padding: 10px 14px; border-radius: 0 10px 10px 0; color: var(--muted); font-size: 13.5px; margin-top: 8px; }
+  pre.out { background: #0e1424; color: #d7e0f5; padding: 14px; border-radius: 12px; overflow: auto; font-size: 12.5px; max-height: 320px; margin: 12px 0 0; }
+  details summary { cursor: pointer; font-weight: 700; font-size: 18px; list-style: none; }
+  details summary::-webkit-details-marker { display: none; }
+  details summary::after { content: "▾"; float: right; color: var(--muted); }
+  details[open] summary::after { content: "▴"; }
+  .row-btns { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  footer { text-align: center; color: var(--muted); font-size: 12.5px; padding: 10px 0 30px; }
+
+  .toast {
+    position: fixed; right: 20px; bottom: 20px; background: #172033; color: #fff; padding: 12px 18px;
+    border-radius: 12px; box-shadow: var(--shadow); opacity: 0; transform: translateY(10px); transition: .25s; pointer-events: none; max-width: 420px; z-index: 50;
+  }
+  .toast.show { opacity: 1; transform: none; }
+  .toast.error { background: var(--bad); }
+  .loader { display: none; width: 20px; height: 20px; border: 3px solid rgba(255,255,255,.4); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; }
+  button.loading .loader { display: inline-block; }
+  button.loading .lbl { display: none; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @media (max-width: 760px) {
+    .gauges, .sbs, .grid2 { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 21px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="row">
+      <div class="brand">
+        <div class="logo">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><circle cx="11" cy="14" r="2.6"/><path d="M13 16l2.5 2.5"/></svg>
+        </div>
+        <div>
+          <h1>Assignment Similarity &amp; Copy Detection</h1>
+          <p>Compare student work in seconds and review the evidence yourself.</p>
+        </div>
+      </div>
+      <button class="iconbtn" id="themeBtn" title="Switch light / dark">☾</button>
+    </div>
+    <div class="chips">
+      <span class="chip">Jaccard similarity</span><span class="chip">Cosine similarity</span>
+      <span class="chip">Code structure (names ignored)</span><span class="chip">Word · PDF · PowerPoint · Excel · code · text</span>
+      <span class="chip">MySQL via JDBC</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- STEP 1 -->
+  <section class="card">
+    <h2><span class="step">1</span> Add the assignments</h2>
+    <p class="sub">Add at least two. Upload files, or paste text straight into the page.</p>
+
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" aria-selected="true" data-pane="paneUpload">Upload files</button>
+      <button class="tab" role="tab" aria-selected="false" data-pane="panePaste">Paste text</button>
+    </div>
+
+    <div class="pane" id="paneUpload">
+      <div class="drop" id="drop">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4m0 0L7 9m5-5 5 5"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
+        <strong>Drag &amp; drop files here</strong>
+        <span>.txt · .docx · .pdf · .pptx · .xlsx · .odt · .rtf · .html · .java · .py · .c · .cpp · .js …</span>
+        <div class="links">
+          <button class="btn" id="pickFiles" type="button">Choose files</button>
+          <button class="btn" id="pickFolder" type="button">Choose a whole folder</button>
+        </div>
+      </div>
+      <input type="file" id="fileInput" multiple hidden>
+      <input type="file" id="folderInput" webkitdirectory multiple hidden>
+    </div>
+
+    <div class="pane" id="panePaste" hidden>
+      <div class="grid2">
+        <input type="text" id="pasteName" placeholder="Name, e.g. Ravi - Assignment 1">
+        <label class="check" style="justify-content:flex-end"><input type="checkbox" id="pasteCode"> This text is source code</label>
+      </div>
+      <textarea id="pasteText" placeholder="Paste the assignment text or code here…"></textarea>
+      <div class="actions" style="margin-top:12px">
+        <button class="btn" id="addText" type="button">+ Add this text</button>
+        <span class="sub" style="margin:0">Tick “source code” to also get the Code structure score.</span>
+      </div>
+    </div>
+
+    <div class="doclist" id="docList"></div>
+
+    <div class="actions">
+      <button class="btn primary" id="compareBtn" type="button" disabled><span class="loader"></span><span class="lbl">Compare now</span></button>
+      <button class="btn ghost" id="clearBtn" type="button">Clear all</button>
+      <label class="check"><input type="checkbox" id="saveDb"> Save results to MySQL database</label>
+      <span class="spacer"></span>
+      <span class="sub" id="countInfo" style="margin:0">0 documents added</span>
+    </div>
+  </section>
+
+  <!-- STEP 2 -->
+  <section class="card" id="resultsCard" hidden>
+    <h2><span class="step">2</span> Results</h2>
+    <div class="summary" id="summary"></div>
+
+    <div id="rankingBlock">
+      <div class="actions" style="margin:0 0 8px">
+        <strong>Ranking — highest similarity first</strong><span class="spacer"></span>
+        <button class="btn ghost" id="csvBtn" type="button">Download CSV</button>
+      </div>
+      <div class="tablewrap"><table class="rank" id="rankTable"></table></div>
+    </div>
+
+    <div id="heatBlock" style="margin-top:22px" hidden>
+      <strong>Similarity map</strong>
+      <p class="sub" style="margin:2px 0 10px">Each square shows the highest of the scores for that pair. Click a square to open it.</p>
+      <div class="tablewrap"><table class="heat" id="heatTable"></table></div>
+    </div>
+
+    <div class="note" id="saveNote" hidden></div>
+    <div class="note">Scores show textual overlap only. They are decision-support information, not proof of plagiarism. Common definitions, technical terms and standard code can raise a score. The instructor makes the final decision.</div>
+  </section>
+
+  <section class="card detail" id="detailCard" hidden></section>
+
+  <!-- DATABASE -->
+  <section class="card">
+    <details>
+      <summary>Database (MySQL)</summary>
+      <p class="sub" style="margin-top:10px">Settings come from <code>db.properties</code> in the project folder (or the DB_URL, DB_USER, DB_PASSWORD variables).</p>
+      <div class="row-btns">
+        <button class="btn" data-db="test">Test connection</button>
+        <button class="btn" data-db="create">Create tables</button>
+        <button class="btn" data-db="assignments">View stored assignments</button>
+        <button class="btn" data-db="results">View stored results</button>
+      </div>
+      <pre class="out" id="dbOut">Press a button above.</pre>
+    </details>
+  </section>
+
+</main>
+<footer>SRM University-AP · Department of CSE · AI-Based Assignment Similarity and Copy Detection Platform</footer>
+<div class="toast" id="toast"></div>
+
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  var docs = [];            // documents added by the user
+  var data = null;          // last result from the server
+  var selected = -1;        // index in data.pairs
+  var nextId = 1;
+
+  /* ---------------- theme ---------------- */
+  function applyTheme(t) {
+    document.documentElement.setAttribute("data-theme", t);
+    $("themeBtn").textContent = t === "dark" ? "☀" : "☾";
+  }
+  var saved = null;
+  try { saved = localStorage.getItem("theme"); } catch (e) {}
+  applyTheme(saved || (window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"));
+  $("themeBtn").onclick = function () {
+    var t = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+    applyTheme(t);
+    try { localStorage.setItem("theme", t); } catch (e) {}
+  };
+
+  /* ---------------- helpers ---------------- */
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+  function toast(msg, isErr) {
+    var t = $("toast");
+    t.textContent = msg; t.className = "toast show" + (isErr ? " error" : "");
+    clearTimeout(toast.h); toast.h = setTimeout(function () { t.className = "toast"; }, 4200);
+  }
+  function band(s) {
+    if (s <= 20) return { c: "#1f9d55", label: "Low" };
+    if (s <= 40) return { c: "#6aa300", label: "Limited" };
+    if (s <= 60) return { c: "#c9a200", label: "Moderate" };
+    if (s <= 80) return { c: "#e67700", label: "High" };
+    return { c: "#d93a3a", label: "Very high" };
+  }
+  function overall(p) { return Math.max(p.jaccard, p.cosine, p.structure == null ? 0 : p.structure); }
+  function ext(name) { var i = name.lastIndexOf("."); return i < 0 ? "" : name.slice(i + 1).toLowerCase(); }
+  var ICON = { pdf: "#d93a3a", docx: "#2f5bea", doc: "#2f5bea", pptx: "#e67700", xlsx: "#1f9d55", txt: "#5f6b82",
+    java: "#b0561f", py: "#3b7bbf", c: "#4a5fa8", cpp: "#4a5fa8", js: "#c9a200", html: "#d9531e", odt: "#2f5bea", rtf: "#2f5bea" };
+  function human(n) { return n < 1024 ? n + " B" : n < 1048576 ? (n / 1024).toFixed(1) + " KB" : (n / 1048576).toFixed(1) + " MB"; }
+
+  /* ---------------- tabs ---------------- */
+  document.querySelectorAll(".tab").forEach(function (b) {
+    b.onclick = function () {
+      document.querySelectorAll(".tab").forEach(function (x) { x.setAttribute("aria-selected", x === b); });
+      document.querySelectorAll(".pane").forEach(function (p) { p.hidden = p.id !== b.dataset.pane; });
+    };
+  });
+
+  /* ---------------- adding documents ---------------- */
+  function addFiles(list) {
+    var n = 0;
+    Array.prototype.forEach.call(list, function (f) {
+      if (f.name.charAt(0) === ".") return;
+      var dup = docs.some(function (d) { return d.file && d.name === f.name && d.size === f.size; });
+      if (dup) return;
+      docs.push({ id: nextId++, kind: "file", name: f.name, size: f.size, file: f });
+      n++;
+    });
+    if (n) toast(n + " file" + (n > 1 ? "s" : "") + " added");
+    renderDocs();
+  }
+  $("pickFiles").onclick = function () { $("fileInput").click(); };
+  $("pickFolder").onclick = function () { $("folderInput").click(); };
+  $("fileInput").onchange = function () { addFiles(this.files); this.value = ""; };
+  $("folderInput").onchange = function () { addFiles(this.files); this.value = ""; };
+  var drop = $("drop");
+  ["dragenter", "dragover"].forEach(function (ev) { drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.add("over"); }); });
+  ["dragleave", "drop"].forEach(function (ev) { drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.remove("over"); }); });
+  drop.addEventListener("drop", function (e) { if (e.dataTransfer && e.dataTransfer.files) addFiles(e.dataTransfer.files); });
+  drop.addEventListener("click", function (e) { if (e.target === drop || e.target.tagName === "STRONG" || e.target.tagName === "SPAN") $("fileInput").click(); });
+  window.addEventListener("dragover", function (e) { e.preventDefault(); });
+  window.addEventListener("drop", function (e) { e.preventDefault(); });
+
+  $("addText").onclick = function () {
+    var text = $("pasteText").value;
+    if (!text.trim()) { toast("Paste some text first.", true); return; }
+    var name = $("pasteName").value.trim() || ("Pasted text " + (docs.filter(function (d) { return d.kind === "text"; }).length + 1));
+    docs.push({ id: nextId++, kind: "text", name: name, size: text.length, text: text, code: $("pasteCode").checked });
+    $("pasteText").value = ""; $("pasteName").value = "";
+    toast("Text added");
+    renderDocs();
+  };
+
+  function renderDocs() {
+    var box = $("docList");
+    box.innerHTML = docs.map(function (d, i) {
+      var e = d.kind === "text" ? (d.code ? "code" : "txt") : ext(d.name);
+      var col = ICON[e] || "#5f6b82";
+      var label = (d.kind === "text" ? (d.code ? "CODE" : "TEXT") : (e || "file")).toUpperCase().slice(0, 4);
+      var err = d.error ? '<div class="errmsg">' + esc(d.error) + "</div>" : '<div class="sz">' + (d.kind === "text" ? "pasted · " + d.size + " characters" : human(d.size)) + "</div>";
+      return '<div class="doc' + (d.error ? " err" : "") + '"><div class="ico" style="background:' + col + '">' + esc(label) + "</div>" +
+        '<div class="meta"><div class="nm" title="' + esc(d.name) + '">' + esc(d.name) + "</div>" + err + "</div>" +
+        '<button title="Remove" data-rm="' + i + '">×</button></div>';
+    }).join("");
+    box.querySelectorAll("[data-rm]").forEach(function (b) { b.onclick = function () { docs.splice(+b.dataset.rm, 1); renderDocs(); }; });
+    $("countInfo").textContent = docs.length + " document" + (docs.length === 1 ? "" : "s") + " added";
+    $("compareBtn").disabled = docs.length < 2;
+  }
+  $("clearBtn").onclick = function () {
+    docs = []; data = null; selected = -1; renderDocs();
+    $("resultsCard").hidden = true; $("detailCard").hidden = true;
+  };
+
+  /* ---------------- compare ---------------- */
+  function readB64(file) {
+    return new Promise(function (resolve, reject) {
+      var r = new FileReader();
+      r.onload = function () { var s = String(r.result); resolve(s.slice(s.indexOf(",") + 1)); };
+      r.onerror = function () { reject(new Error("Could not read " + file.name)); };
+      r.readAsDataURL(file);
+    });
+  }
+  async function api(path, opts) {
+    opts = opts || {};
+    opts.headers = Object.assign({ "X-App": "1" }, opts.headers || {});
+    var res = await fetch(path, opts);
+    var j = await res.json().catch(function () { return {}; });
+    if (!res.ok) throw new Error(j.error || ("Request failed (" + res.status + ")"));
+    return j;
+  }
+
+  $("compareBtn").onclick = async function () {
+    var btn = this;
+    btn.classList.add("loading"); btn.disabled = true;
+    try {
+      var items = [];
+      for (var i = 0; i < docs.length; i++) {
+        var d = docs[i];
+        if (d.kind === "text") items.push({ name: d.name, text: d.text, code: d.code });
+        else items.push({ name: d.name, data: await readB64(d.file) });
+      }
+      data = await api("/api/compare", { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ save: $("saveDb").checked, docs: items }) });
+      data.docs.forEach(function (x, i) { docs[i].error = x.error || null; });
+      renderDocs();
+      renderResults();
+      $("resultsCard").scrollIntoView({ behavior: "smooth", block: "start" });
+    } catch (e) {
+      toast(e.message, true);
+    } finally {
+      btn.classList.remove("loading"); btn.disabled = docs.length < 2;
+    }
+  };
+
+  /* ---------------- results ---------------- */
+  function bar(v, w) {
+    if (v == null) return '<span style="color:var(--muted)">—</span>';
+    return '<div class="minibar"><i style="--w:' + v + ";--c:" + band(v).c + '"></i><em>' + v.toFixed(2) + "%</em></div>";
+  }
+  function badge(p) { var b = band(overall(p)); return '<span class="badge" style="--c:' + b.c + '">' + esc(p.level) + "</span>"; }
+
+  function renderResults() {
+    var ok = data.docs.filter(function (d) { return !d.error; }).length;
+    var bad = data.docs.length - ok;
+    var top = data.pairs.length ? overall(data.pairs[0]) : 0;
+    $("resultsCard").hidden = false;
+    $("summary").innerHTML =
+      '<div class="stat"><b>' + ok + "</b><span>documents read</span></div>" +
+      '<div class="stat"><b>' + data.pairs.length + "</b><span>pairs compared</span></div>" +
+      '<div class="stat"><b style="color:' + band(top).c + '">' + top.toFixed(1) + "%</b><span>highest similarity</span></div>" +
+      (bad ? '<div class="stat"><b style="color:var(--bad)">' + bad + "</b><span>files skipped (see errors above)</span></div>" : "");
+
+    var sn = $("saveNote");
+    if (data.message) { sn.hidden = false; sn.textContent = data.message; sn.style.borderLeftColor = data.saved ? "var(--good)" : "var(--bad)"; }
+    else sn.hidden = true;
+
+    if (!data.pairs.length) {
+      $("rankingBlock").hidden = true; $("heatBlock").hidden = true; $("detailCard").hidden = true;
+      toast("Nothing to compare. Check the files marked in red.", true);
+      return;
+    }
+    $("rankingBlock").hidden = false;
+    var rows = data.pairs.map(function (p, k) {
+      return '<tr class="row" data-k="' + k + '"><td>' + (k + 1) + "</td><td><b>" + esc(data.docs[p.a].name) + "</b></td><td><b>" + esc(data.docs[p.b].name) +
+        "</b></td><td>" + bar(p.jaccard) + "</td><td>" + bar(p.cosine) + "</td><td>" + bar(p.structure) + "</td><td>" + badge(p) + "</td></tr>";
+    }).join("");
+    $("rankTable").innerHTML = "<thead><tr><th>#</th><th>Document A</th><th>Document B</th><th>Jaccard</th><th>Cosine</th><th>Code structure</th><th>Level</th></tr></thead><tbody>" + rows + "</tbody>";
+    $("rankTable").querySelectorAll("tr.row").forEach(function (tr) { tr.onclick = function () { select(+tr.dataset.k, true); }; });
+
+    // heat map (up to 25 documents)
+    var idxs = []; data.docs.forEach(function (d, i) { if (!d.error) idxs.push(i); });
+    if (idxs.length > 2 && idxs.length <= 25) {
+      var lookup = {}; data.pairs.forEach(function (p, k) { lookup[p.a + "-" + p.b] = k; lookup[p.b + "-" + p.a] = k; });
+      var h = "<thead><tr><th></th>" + idxs.map(function (i) { return '<th title="' + esc(data.docs[i].name) + '">' + esc(data.docs[i].name.slice(0, 9)) + "</th>"; }).join("") + "</tr></thead><tbody>";
+      idxs.forEach(function (i) {
+        h += '<tr><th title="' + esc(data.docs[i].name) + '">' + esc(data.docs[i].name) + "</th>";
+        idxs.forEach(function (j) {
+          if (i === j) { h += '<td class="self">—</td>'; return; }
+          var k = lookup[i + "-" + j], v = overall(data.pairs[k]), hue = Math.round(120 - 1.2 * v);
+          h += '<td data-k="' + k + '" style="background:hsl(' + hue + ',70%,' + (document.documentElement.dataset.theme === "dark" ? 32 : 82) + '%)" title="' + esc(data.docs[i].name + " vs " + data.docs[j].name) + '">' + Math.round(v) + "</td>";
+        });
+        h += "</tr>";
+      });
+      $("heatTable").innerHTML = h + "</tbody>";
+      $("heatTable").querySelectorAll("td[data-k]").forEach(function (td) { td.onclick = function () { select(+td.dataset.k, true); }; });
+      $("heatBlock").hidden = false;
+    } else $("heatBlock").hidden = true;
+
+    select(0, false);
+  }
+
+  /* ---------------- detail ---------------- */
+  function gauge(title, sub, v) {
+    if (v == null) return '<div class="gauge na"><div class="ring" style="--p:0"><div>n/a</div></div><h4>' + title + "</h4><p>" + sub + "</p></div>";
+    return '<div class="gauge"><div class="ring" style="--p:' + v + ";--c:" + band(v).c + '"><div>' + v.toFixed(1) + '%</div></div><h4>' + title + "</h4><p>" + sub + "</p></div>";
+  }
+  function highlight(text, sentences) {
+    var ranges = [];
+    sentences.forEach(function (s) {
+      var from = 0, i;
+      while (s && (i = text.indexOf(s, from)) >= 0) { ranges.push([i, i + s.length]); from = i + s.length; }
+    });
+    ranges.sort(function (x, y) { return x[0] - y[0]; });
+    var out = "", pos = 0;
+    ranges.forEach(function (r) {
+      if (r[1] <= pos) return;
+      var st = Math.max(r[0], pos);
+      out += esc(text.slice(pos, st)) + "<mark>" + esc(text.slice(st, r[1])) + "</mark>";
+      pos = r[1];
+    });
+    return out + esc(text.slice(pos));
+  }
+  function select(k, scroll) {
+    selected = k;
+    document.querySelectorAll("#rankTable tr.row").forEach(function (tr) { tr.classList.toggle("sel", +tr.dataset.k === k); });
+    var p = data.pairs[k], A = data.docs[p.a], B = data.docs[p.b];
+    var both = (p.structure != null);
+    var card = $("detailCard");
+    card.hidden = false;
+    card.innerHTML =
+      "<h3>" + esc(A.name) + " <span style='color:var(--muted)'>vs</span> " + esc(B.name) + "</h3>" +
+      '<div class="gauges">' + gauge("Jaccard", "shared unique words", p.jaccard) + gauge("Cosine", "word frequency", p.cosine) +
+      gauge("Code structure", "names, spacing, comments ignored", p.structure) + "</div>" +
+      '<div class="verdict">' + badge(p) + '<span class="stats">' + A.words + " words vs " + B.words + " words · " + p.shared + " shared unique words · " +
+      p.commonCount + " identical sentence" + (p.commonCount === 1 ? "" : "s") + "</span></div>" +
+      '<div class="legend"><mark>Highlighted</mark> text appears in both documents.' + ((A.truncated || B.truncated) ? " (Very long texts are shown only in part, the scores use the whole text.)" : "") + "</div>" +
+      '<div class="sbs"><div><h4>' + esc(A.name) + '</h4><div class="textbox' + (A.isCode ? " code" : "") + '">' + highlight(A.text, p.common) + "</div></div>" +
+      "<div><h4>" + esc(B.name) + '</h4><div class="textbox' + (B.isCode ? " code" : "") + '">' + highlight(B.text, p.commonB) + "</div></div></div>" +
+      (p.common.length ? "<h4 style='margin:18px 0 8px'>Identical sentences (evidence)</h4><ol class='evidence'>" + p.common.slice(0, 50).map(function (s) { return "<li>" + esc(s) + "</li>"; }).join("") + "</ol>"
+        : "<p class='sub' style='margin-top:14px'>No identical sentences of 6 or more words were found. The scores come from shared words" + (both ? " and code structure" : "") + ".</p>");
+    if (scroll) card.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  /* ---------------- CSV ---------------- */
+  $("csvBtn").onclick = function () {
+    var rows = [["Document A", "Document B", "Jaccard %", "Cosine %", "Code structure %", "Level", "Identical sentences"]];
+    data.pairs.forEach(function (p) {
+      rows.push([data.docs[p.a].name, data.docs[p.b].name, p.jaccard, p.cosine, p.structure == null ? "" : p.structure, p.level, p.commonCount]);
+    });
+    var csv = rows.map(function (r) { return r.map(function (c) { return '"' + String(c).replace(/"/g, '""') + '"'; }).join(","); }).join("\r\n");
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob(["﻿" + csv], { type: "text/csv" }));
+    a.download = "similarity-results.csv"; a.click();
+  };
+
+  /* ---------------- database ---------------- */
+  document.querySelectorAll("[data-db]").forEach(function (b) {
+    b.onclick = async function () {
+      $("dbOut").textContent = "Working…";
+      try { var j = await api("/api/db?action=" + b.dataset.db, { method: "POST" }); $("dbOut").textContent = j.output || "(no output)"; }
+      catch (e) { $("dbOut").textContent = "Error: " + e.message; }
+    };
+  });
+
+  renderDocs();
+})();
+</script>
+</body>
+</html>

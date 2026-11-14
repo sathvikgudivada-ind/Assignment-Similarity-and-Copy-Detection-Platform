@@ -1,0 +1,5 @@
+# Copy this file to db.properties and fill in your own values.
+# db.properties is listed in .gitignore so your password is never pushed to GitHub.
+db.url=jdbc:mysql://localhost:3306/assignment_similarity?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=UTF-8
+db.user=root
+db.password=your_password_here
